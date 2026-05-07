@@ -1,0 +1,7 @@
+{
+    "risks": [
+        "Kalman Filter Delay",
+        "Coordinate Confusion",
+        "Blink Artifacts"
+    ]
+}

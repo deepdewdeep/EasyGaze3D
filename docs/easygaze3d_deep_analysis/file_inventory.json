@@ -1,0 +1,8 @@
+{
+    "files": [
+        "gaze_estimation.py",
+        "helpers.py",
+        "demo_webcam.py",
+        "calibrate_features.py"
+    ]
+}
