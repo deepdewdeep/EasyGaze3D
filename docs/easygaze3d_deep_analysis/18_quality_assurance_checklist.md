@@ -1,0 +1,36 @@
+# Quality Assurance Checklist (Pass 2)
+
+- [x] 1. Every major claim is verified with source evidence (`19_evidence_lock.md`)
+- [x] 2. Exact averaging bottleneck verified (`gaze_estimation.py` line 88-89, `helpers.py` line 167)
+- [x] 3. Exact vector creation path traced (`20_exact_gaze_vector_trace.md`)
+- [x] 4. W, C, I coordinate systems explained (`21_coordinate_system_verification.md`)
+- [x] 5. Face relative feasibility addressed (W is face-relative)
+- [x] 6. Left right identity checked (468/473 matches subject anatomy)
+- [x] 7. Smoothing behavior checked (only happens in demo script)
+- [x] 8. Invalid frame behavior checked (`np.zeros` risk identified)
+- [x] 9. Output schema is scientifically meaningful (`24_proposed_output_schema.md`)
+- [x] 10. Preserves existing average gaze
+- [x] 11. Preserves independent vectors
+- [x] 12. Includes coordinate metadata
+- [x] 13. Includes validity flags
+- [x] 14. Avoids artificial synchronization only
+- [x] 15. Avoids unnecessary refactoring
+- [x] 16. Avoids retraining
+- [x] 17. Includes test script plan
+- [x] 18. Future implementation prompt updated
+- [x] 19. Uncertainty clearly marked
+- [x] 20. No source code was modified
+## Post-Implementation QA Criteria (Pass 3)
+- [x] 1. Independent left and right gaze vectors are exported.
+- [x] 2. Existing average gaze output is preserved.
+- [x] 3. Existing API behavior is preserved as much as possible.
+- [x] 4. W and C vectors are clearly separated.
+- [x] 5. Validity information is added.
+- [x] 6. The implementation is additive and minimal.
+- [x] 7. No source wide refactor was performed.
+- [x] 8. No retraining was introduced.
+- [x] 9. New fields are documented.
+- [x] 10. Coordinate warnings are documented.
+- [x] 11. Remaining scientific risks are documented.
+- [x] 12. At least one sanity check or manual verification path is provided.
+- [x] 13. `docs/easygaze3d_deep_analysis/27_implementation_report.md` is created.

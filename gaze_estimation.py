@@ -37,7 +37,7 @@ def gaze_vector(image, intrinsic_params, cfg, saved_fs_3d=None, saved_EyeballCen
     lmk_2d, Pupil_2d, Eye_contour_2d, exist_lmk = detect_lmk_2d(image, lmk_idx_dict, cfg)
 
     if not exist_lmk:
-        return np.zeros((1, 3)).squeeze(), np.zeros((1, 3)).squeeze(), {}, False
+        return np.zeros((1, 3)).squeeze(), np.zeros((1, 3)).squeeze(), {'frame_valid': False}, False
 
     # 3d facial shape reconstruction
     if not use_EasyCali:
@@ -52,7 +52,7 @@ def gaze_vector(image, intrinsic_params, cfg, saved_fs_3d=None, saved_EyeballCen
         fs_3d, fs_frontal_3d, exist_fs = saved_fs_3d, saved_fs_3d[: cfg.face_3d_model_frontal_idx, :], True
 
     if not exist_fs:
-        return np.zeros((1, 3)).squeeze(), np.zeros((1, 3)).squeeze(), {}, False
+        return np.zeros((1, 3)).squeeze(), np.zeros((1, 3)).squeeze(), {'frame_valid': False}, False
 
     # 3d landmark detection
     lmk_3d = detect_lmk_3d(fs_3d, lmk_idx_dict)
@@ -68,7 +68,7 @@ def gaze_vector(image, intrinsic_params, cfg, saved_fs_3d=None, saved_EyeballCen
     LeftEye_mask_W, RightEye_mask_W = eye_mask(Eye_contour_2d, fs_frontal_I, fs_frontal_W, image.shape, cfg)
     if LeftEye_mask_W.shape[0] <= 10 or RightEye_mask_W.shape[0] <= 10:
         print('Eye mask too small.')
-        return np.zeros((1, 3)).squeeze(), np.zeros((1, 3)).squeeze(), {}, False
+        return np.zeros((1, 3)).squeeze(), np.zeros((1, 3)).squeeze(), {'frame_valid': False}, False
 
     # Pupil center in W
     LeftPupil_W, RightPupil_W = pupil_center(Pupil_2d, LeftEye_mask_W, RightEye_mask_W, rot_v, trans_v, intrinsic_params)
@@ -145,6 +145,35 @@ def gaze_vector(image, intrinsic_params, cfg, saved_fs_3d=None, saved_EyeballCen
         }
     else:
         extend_dict = {}
+
+    # Extract explicit independent raw normalized gaze vectors
+    # Same internal math as `average_gaze` but kept separated.
+    # W coordinates (head-relative, eye-in-head)
+    left_gaze_raw_W = LeftPupil_W - LeftEyeballCenter_W
+    left_gaze_W = left_gaze_raw_W / (np.linalg.norm(left_gaze_raw_W) + 1e-10)
+
+    right_gaze_raw_W = RightPupil_W - RightEyeballCenter_W
+    right_gaze_W = right_gaze_raw_W / (np.linalg.norm(right_gaze_raw_W) + 1e-10)
+
+    # C coordinates (camera-relative)
+    left_gaze_raw_C = LeftPupil_C - LeftEyeballCenter_C
+    left_gaze_C = left_gaze_raw_C / (np.linalg.norm(left_gaze_raw_C) + 1e-10)
+
+    right_gaze_raw_C = RightPupil_C - RightEyeballCenter_C
+    right_gaze_C = right_gaze_raw_C / (np.linalg.norm(right_gaze_raw_C) + 1e-10)
+
+    # Validate that the computed vectors are safe and finite
+    is_safe = np.all(np.isfinite(left_gaze_W)) and np.all(np.isfinite(right_gaze_W)) and \
+              np.all(np.isfinite(left_gaze_C)) and np.all(np.isfinite(right_gaze_C)) and \
+              np.linalg.norm(left_gaze_raw_W) > 1e-6 and np.linalg.norm(right_gaze_raw_W) > 1e-6
+
+    extend_dict['LeftGaze_W'] = left_gaze_W
+    extend_dict['RightGaze_W'] = right_gaze_W
+    extend_dict['LeftGaze_C'] = left_gaze_C
+    extend_dict['RightGaze_C'] = right_gaze_C
+    extend_dict['frame_valid'] = bool(is_safe)
+    extend_dict['gaze_vector_export_version'] = '1.0'
+    extend_dict['gaze_coordinate_note'] = 'W vectors are head-relative model space. C vectors are camera-relative spatial vectors. Left/Right based on subject anatomy.'
 
     if gaze_C[2] > 0:  # TODO: Need to consider the WRONG CCS side about camera position
         gaze_C[2] = -gaze_C[2]

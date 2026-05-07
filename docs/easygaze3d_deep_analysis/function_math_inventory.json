@@ -1,0 +1,7 @@
+{
+    "functions": [
+        "average_gaze",
+        "head_pose",
+        "lines_intersection"
+    ]
+}
