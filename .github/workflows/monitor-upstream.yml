@@ -133,7 +133,9 @@ jobs:
               origin_sha="$(git rev-parse "refs/remotes/origin/${branch}")"
               if [[ "${upstream_sha}" != "${origin_sha}" ]]; then
                 changed=true
-                details+="- \`${branch}\`: upstream moved (\`${origin_sha:0:7}\` -> \`${upstream_sha:0:7}\`)\n"
+                origin_short="$(git rev-parse --short "${origin_sha}")"
+                upstream_short="$(git rev-parse --short "${upstream_sha}")"
+                details+="- \`${branch}\`: upstream moved (\`${origin_short}\` -> \`${upstream_short}\`)\n"
                 changed_list+="${branch},"
                 pr_targets+="${branch},"
               fi
@@ -177,7 +179,7 @@ jobs:
             ].join('\n');
 
             const { data: search } = await github.rest.search.issuesAndPullRequests({
-              q: `repo:${owner}/${repo} is:issue is:open in:title "${title.replace(/"/g, '\\"')}"`,
+              q: `repo:${owner}/${repo} is:issue is:open in:title "${title}"`,
               per_page: 1
             });
             const existing = search.items?.[0];
@@ -244,7 +246,7 @@ jobs:
               continue
             fi
 
-            git push --force-with-lease origin "${sync_branch}"
+            git push origin "${sync_branch}"
 
             existing_pr="$(gh pr list \
               --state open \

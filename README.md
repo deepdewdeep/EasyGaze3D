@@ -60,7 +60,7 @@ This tracks all upstream branches under `refs/remotes/upstream/*`.
 
 In this downstream repository, set these **Repository Variables** (`Settings -> Secrets and variables -> Actions -> Variables`):
 
-- `UPSTREAM_OWNER` (GitHub org/user name, example: `BrainGazeInternsDec2024`)
+- `UPSTREAM_OWNER` (GitHub org/user name, example: `ExampleUpstreamOrg`)
 - `UPSTREAM_REPO` (your upstream repo name)
 - `UPSTREAM_BRANCHES` (optional, comma-separated; leave empty to monitor all upstream branches)
 - `UPSTREAM_AUTO_SYNC` (`true` or `false`, default recommended: `false`)
