@@ -41,11 +41,11 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const upstreamOwner = process.env.VAR_UPSTREAM_OWNER || github.context.payload.inputs?.upstream_owner;
-            const upstreamRepo = process.env.VAR_UPSTREAM_REPO || github.context.payload.inputs?.upstream_repo;
-            const branchesInput = (github.context.payload.inputs?.upstream_branches) || process.env.VAR_UPSTREAM_BRANCHES || '';
-            const notifyIssue = ((github.context.payload.inputs && github.context.payload.inputs.notify_issue) !== undefined)
-              ? (github.context.payload.inputs.notify_issue === 'true' || github.context.payload.inputs.notify_issue === true)
+            const upstreamOwner = process.env.VAR_UPSTREAM_OWNER || context.payload?.inputs?.upstream_owner;
+            const upstreamRepo = process.env.VAR_UPSTREAM_REPO || context.payload?.inputs?.upstream_repo;
+            const branchesInput = (context.payload?.inputs?.upstream_branches) || process.env.VAR_UPSTREAM_BRANCHES || '';
+            const notifyIssue = ((context.payload && context.payload.inputs && context.payload.inputs.notify_issue) !== undefined)
+              ? (context.payload.inputs.notify_issue === 'true' || context.payload.inputs.notify_issue === true)
               : (process.env.VAR_UPSTREAM_NOTIFY_ISSUE === 'true');
 
             if (!upstreamOwner || !upstreamRepo) {
