@@ -212,6 +212,16 @@ jobs:
             safe_branch="$(echo "${branch}" | tr '/ ' '--')"
             sync_branch="sync/upstream-${safe_branch}"
 
+            if ! git show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
+              echo "Skipping ${branch}: downstream origin branch does not exist."
+              continue
+            fi
+
+            if ! git show-ref --verify --quiet "refs/remotes/upstream/${branch}"; then
+              echo "Skipping ${branch}: upstream branch does not exist."
+              continue
+            fi
+
             git checkout -B "${sync_branch}" "origin/${branch}"
             if ! git merge --no-edit "upstream/${branch}"; then
               git merge --abort || true

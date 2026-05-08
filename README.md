@@ -60,7 +60,7 @@ This tracks all upstream branches under `refs/remotes/upstream/*`.
 
 In this downstream repository, set these **Repository Variables** (`Settings -> Secrets and variables -> Actions -> Variables`):
 
-- `UPSTREAM_OWNER` (example: `BrainGazeInternsDec2024`)
+- `UPSTREAM_OWNER` (GitHub org/user name, example: `BrainGazeInternsDec2024`)
 - `UPSTREAM_REPO` (your upstream repo name)
 - `UPSTREAM_BRANCHES` (optional, comma-separated; leave empty to monitor all upstream branches)
 - `UPSTREAM_AUTO_SYNC` (`true` or `false`, default recommended: `false`)
@@ -86,4 +86,3 @@ To ensure updates are visible in this repository:
 
 ## Acknowledgement
 The 3D face model reconstruction in this work is modified from [3DDFA_V2](https://github.com/cleardusk/3DDFA_V2).
-
