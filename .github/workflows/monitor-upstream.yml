@@ -98,3 +98,73 @@ jobs:
             } else {
               await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body });
             }
+
+  sync-upstream:
+    needs: detect-upstream-updates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add upstream remote and fetch
+        run: |
+          git remote add upstream https://github.com/${{ env.VAR_UPSTREAM_OWNER }}/${{ env.VAR_UPSTREAM_REPO }}.git || true
+          git fetch upstream --prune --no-tags
+        shell: bash
+
+      - name: Create sync branches from upstream and push to origin
+        id: create_syncs
+        run: |
+          PRESERVE="feat/independent-binocular-gaze-2921647012523280797"
+          > sync_list.txt
+          for ref in $(git for-each-ref --format='%(refname:short)' refs/remotes/upstream/); do
+            branch=${ref#upstream/}
+            if [ "$branch" = "$PRESERVE" ]; then
+              echo "Skipping preserve branch $branch"
+              continue
+            fi
+            upstream_sha=$(git rev-parse refs/remotes/upstream/$branch)
+            origin_sha=$(git ls-remote origin refs/heads/$branch | cut -f1)
+            if [ -z "$origin_sha" ] || [ "$upstream_sha" != "$origin_sha" ]; then
+              echo "Creating sync branch for $branch"
+              git checkout -b sync/upstream/$branch $upstream_sha
+              git push origin sync/upstream/$branch --force
+              echo "$branch sync/upstream/$branch" >> sync_list.txt
+              git checkout --detach
+            fi
+          done
+          cat sync_list.txt || true
+        shell: bash
+
+      - name: Create or update PRs for sync branches
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'sync_list.txt';
+            if (!fs.existsSync(path)) {
+              core.info('No sync branches created.');
+              return;
+            }
+            const lines = fs.readFileSync(path, 'utf8').split('\n').map(l => l.trim()).filter(Boolean);
+            for (const line of lines) {
+              const [baseBranch, headBranch] = line.split(' ');
+              const title = `Sync from upstream/${baseBranch}`;
+              const body = `Automated PR to sync changes from upstream branch **${baseBranch}** into this repository.\n\nThis PR was created by the upstream monitor workflow.`;
+              // Find existing open PR with same head and base
+              const prs = await github.rest.pulls.list({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', head: `${context.repo.owner}:${headBranch}` });
+              const existing = prs.data.find(p => p.base.ref === baseBranch);
+              if (existing) {
+                core.info(`PR already exists: ${existing.html_url}`);
+              } else {
+                await github.rest.pulls.create({ owner: context.repo.owner, repo: context.repo.repo, title, head: headBranch, base: baseBranch, body });
+              }
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
