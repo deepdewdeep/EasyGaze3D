@@ -54,7 +54,7 @@ git config remote.upstream.fetch "+refs/heads/*:refs/remotes/upstream/*"
 git fetch upstream --prune
 ```
 
-This tracks all upstream branches under `refs/remotes/upstream/*`.
+This tracks all upstream branches under `refs/remotes/upstream/*`
 
 ### 2) Configure repository variables for automation
 
