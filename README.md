@@ -33,7 +33,7 @@ To use your own webcam for real-time gaze estimation:
 
 ## Downstream upstream-sync setup (BrainGaze upstream)
 
-This repository can be used as a **downstream** that tracks a different upstream repository (for example, a BrainGazeInternsDec2024 fork).
+This repository can be used as a **downstream** that tracks a different upstream repository (for example, a BrainGazeUpstream fork).
 
 ### Important GitHub platform constraint
 
