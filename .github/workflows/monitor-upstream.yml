@@ -2,6 +2,7 @@ name: Monitor upstream changes
 
 on:
   schedule:
+    # Every 6 hours
     - cron: "0 */6 * * *"
   workflow_dispatch:
     inputs:
@@ -284,7 +285,13 @@ jobs:
               --jq '.[0].number')"
 
             pr_title="Sync ${branch} from upstream (${{ steps.cfg.outputs.upstream_owner }}/${{ steps.cfg.outputs.upstream_repo }})"
-            pr_body=$'Automated upstream sync PR.\n\n- Source: upstream/'"${branch}"$'\n- Trigger: monitor-upstream workflow'
+            pr_body="$(cat <<EOF
+Automated upstream sync PR.
+
+- Source: upstream/${branch}
+- Trigger: monitor-upstream workflow
+EOF
+)"
 
             if [[ -n "${existing_pr}" && "${existing_pr}" != "null" ]]; then
               gh pr edit "${existing_pr}" --title "${pr_title}" --body "${pr_body}"

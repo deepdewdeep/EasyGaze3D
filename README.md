@@ -33,7 +33,7 @@ To use your own webcam for real-time gaze estimation:
 
 ## Downstream upstream-sync setup (BrainGaze upstream)
 
-This repository can be used as a **downstream** that tracks any chosen upstream repository (for example, a BrainGazeUpstream fork maintained by your team).
+This repository can be used as a **downstream** that tracks any chosen upstream repository (for example, a team-maintained upstream fork such as `BrainGazeUpstream`).
 
 ### Important GitHub platform constraint
 
@@ -54,7 +54,7 @@ git config remote.upstream.fetch "+refs/heads/*:refs/remotes/upstream/*"
 git fetch upstream --prune
 ```
 
-This tracks all upstream branches under `refs/remotes/upstream/*`
+This tracks all upstream branches under `refs/remotes/upstream/*`.
 
 ### 2) Configure repository variables for automation
 
