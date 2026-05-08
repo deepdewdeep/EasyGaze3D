@@ -36,6 +36,8 @@ env:
 jobs:
   detect-upstream-updates:
     runs-on: ubuntu-latest
+    env:
+      UPSTREAM_TOKEN: ${{ secrets.UPSTREAM_TOKEN }}
     steps:
       - name: Check upstream and notify
         uses: actions/github-script@v6
@@ -48,6 +50,9 @@ jobs:
               ? (context.payload.inputs.notify_issue === 'true' || context.payload.inputs.notify_issue === true)
               : (process.env.VAR_UPSTREAM_NOTIFY_ISSUE === 'true');
 
+            const { Octokit } = require('@octokit/rest');
+            const upstreamClient = process.env.UPSTREAM_TOKEN ? new Octokit({ auth: process.env.UPSTREAM_TOKEN }) : github;
+
             if (!upstreamOwner || !upstreamRepo) {
               core.info('Upstream owner/repo not configured; nothing to do.');
               return;
@@ -57,14 +62,14 @@ jobs:
             // if no branches specified, check all branches from upstream
             let upstreamBranches = branches;
             if (upstreamBranches.length === 0) {
-              const list = await github.rest.repos.listBranches({ owner: upstreamOwner, repo: upstreamRepo, per_page: 100 });
+              const list = await upstreamClient.rest.repos.listBranches({ owner: upstreamOwner, repo: upstreamRepo, per_page: 100 });
               upstreamBranches = list.data.map(b => b.name);
             }
 
             const changes = [];
             for (const branch of upstreamBranches) {
               try {
-                const commits = await github.rest.repos.listCommits({ owner: upstreamOwner, repo: upstreamRepo, sha: branch, per_page: 1 });
+                const commits = await upstreamClient.rest.repos.listCommits({ owner: upstreamOwner, repo: upstreamRepo, sha: branch, per_page: 1 });
                 if (!commits || !commits.data || commits.data.length === 0) continue;
                 const commit = commits.data[0];
                 changes.push({ branch, sha: commit.sha, message: commit.commit.message, url: commit.html_url });
