@@ -66,7 +66,7 @@ jobs:
           notify_issue="${INPUT_NOTIFY_ISSUE:-${VAR_UPSTREAM_NOTIFY_ISSUE:-true}}"
 
           if [[ -z "${upstream_owner}" || -z "${upstream_repo}" ]]; then
-            echo "UPSTREAM_OWNER and UPSTREAM_REPO must be set via workflow_dispatch inputs or repository variables."
+            echo "UPSTREAM_OWNER and UPSTREAM_REPO must be set via workflow_dispatch inputs or repository variables (Settings -> Secrets and variables -> Actions -> Variables)."
             exit 1
           fi
 
